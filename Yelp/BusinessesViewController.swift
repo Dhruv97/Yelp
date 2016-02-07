@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UIScrollViewDelegate {
+class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UIScrollViewDelegate, FiltersViewControllerDelegate {
 
     var businesses: [Business]!
   
@@ -32,9 +32,11 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 120
         
+        
         let searchBar = UISearchBar()
         searchBar.delegate = self
-        
+
+                
         self.navigationItem.titleView = searchBar
         
         Business.searchWithTerm("", completion: { (businesses: [Business]!, error: NSError!) -> Void in
@@ -118,15 +120,29 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         }
     }
     
-    
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        
+        let navigationController = segue.destinationViewController as! UINavigationController
+        
+        let filtersViewControler = navigationController.topViewController as! FiltersViewController
+        
+        filtersViewControler.delegate = self
+        
     }
-    */
-
+    
+    func filtersViewController(filterViewController: FiltersViewController, didUpdateFilters filters: [String : AnyObject]) {
+        
+        var catergories = filters["catergories"] as? [String]
+        
+        Business.searchWithTerm("", sort: nil, categories: catergories, deals: nil) { (businesses: [Business]!, error: NSError!) -> Void in
+            
+            self.businesses = businesses
+            
+            self.tableView.reloadData()
+            
+        }
+        
+    }
+    
+    
 }
